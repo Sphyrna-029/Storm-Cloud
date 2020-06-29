@@ -1,0 +1,4 @@
+smbus
+RPi.bme280
+pi-ina219
+RPi.GPIO
