@@ -12,6 +12,7 @@ func main() {
   models.ConnectDatabase()
 
   r.GET("/events", controllers.FindEvents)
+  r.GET("/events/:id", controllers.FindStation)
   r.POST("/events", controllers.CreateEvent)
 
   r.Run()
