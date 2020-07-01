@@ -3,8 +3,20 @@ from RPi_AS3935 import RPi_AS3935
 import RPi.GPIO as GPIO
 import threading
 import smbus2
+import socket
+import uuid
+import hashlib
 import bme280
 import time
+
+def IdGen():
+    #generate a ID unique to the station from static attributes (stateless and persists on reboot)
+    host_name = socket.gethostname()
+    host_mac = hex(uuid.getnode())
+    hashstr = host_name + host_mac
+
+    return hashlib.md5(hashstr.encode('utf-8')).hexdigest()
+
 
 def multiSense():
     port = 1
@@ -13,7 +25,11 @@ def multiSense():
 
     calibration_params = bme280.load_calibration_params(bus, address)
 
+    # the sample method will take a single reading and return a
+    # compensated_reading object
     data = bme280.sample(bus, address, calibration_params)
+
+    # the compensated_reading class has the following attributes
 
     print("Sensor: BME280")
     print("Address: 0x76")
@@ -42,9 +58,12 @@ def strikeSense():
     global sensor
     sensor = RPi_AS3935(address=0x03, bus=1)
     print("Calibrating lightning sensor...")
+    sensor.reset()
     sensor.set_indoors(False)
     sensor.set_noise_floor(0)
-    sensor.calibrate(tun_cap=0x07)
+    time.sleep(2)
+    sensor.calibrate(tun_cap=0x0F)
+    time.sleep(2)
     print("Calibration complete: ✓")
 
     def handle_interrupt(channel):
@@ -52,7 +71,8 @@ def strikeSense():
         reason = sensor.get_interrupt()
         if reason == 0x01:
             print("Noise level too high - adjusting")
-            sensor.raise_noise_floor()
+            nf = sensor.raise_noise_floor()
+            print("Noise floor: " + str(nf))
         elif reason == 0x04:
             print("Noise event detected - masking")
             sensor.set_mask_disturber(True)
@@ -89,6 +109,7 @@ except:
 #Main loop#
 ###########
 while True:
+    print("Station ID: " + IdGen())
     multiSense()
     powerSense()
 
