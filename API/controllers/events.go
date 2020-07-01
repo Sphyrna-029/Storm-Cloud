@@ -1,9 +1,7 @@
-// controllers/events.go
-
 package controllers
 
 import (
-	"net/http"
+	    "net/http"
         "github.com/gin-gonic/gin"
         "github.com/BuckarewBanzai/storm-cloud/models"
 )
@@ -27,6 +25,19 @@ func FindEvents(c *gin.Context) {
   models.DB.Find(&events)
 
   c.JSON(http.StatusOK, gin.H{"data": events})
+}
+
+// GET /event/:stationid
+// Find events by stationid
+func FindStation(c *gin.Context) {
+	// Get model if exist
+	var events []models.Event
+	if err := models.DB.Where("station_id = ?", c.Param("id")).Find(&events).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Station ID not found!"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": events})
 }
 
 // POST /events
