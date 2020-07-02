@@ -1,0 +1,5 @@
+### Usage
+
+```
+go build
+```
