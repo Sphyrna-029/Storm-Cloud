@@ -1,6 +1,6 @@
 ### Usage
 
-☄️ This will compile a go binary and load it into a container ☄️
+⛈️ This will compile the api and deploy to docker ⛈️
 ```
 ./build.sh
 ```
