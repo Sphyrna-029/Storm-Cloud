@@ -56,15 +56,15 @@ func CreateEvent(c *gin.Context) {
 	// Create event
 	events := models.Event{ 
 		                    StationID: input.StationID, 
-						    DateTime: input.DateTime, 
-						    Temperature: input.Temperature, 
-						    Pressure: input.Pressure, 
-						    Humidity: input.Humidity, 
-						    BusVoltage: input.BusVoltage, 
-						    BusCurrent: input.BusCurrent, 
-						    SupplyVoltage: input.SupplyVoltage, 
-						    ShuntVoltage: input.ShuntVoltage, 
-						    Power: input.Power}
+				    DateTime: input.DateTime, 
+				    Temperature: input.Temperature, 
+				    Pressure: input.Pressure, 
+				    Humidity: input.Humidity, 
+				    BusVoltage: input.BusVoltage, 
+				    BusCurrent: input.BusCurrent, 
+				    SupplyVoltage: input.SupplyVoltage, 
+				    ShuntVoltage: input.ShuntVoltage, 
+				    Power: input.Power }
 
 	models.DB.Create(&events)
   
