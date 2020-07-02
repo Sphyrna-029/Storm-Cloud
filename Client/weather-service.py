@@ -23,7 +23,7 @@ def dateTime():
 
 
 def IdGen():
-    #generate a ID unique to the station from static attributes (stateless and persists on reboot barring ip change)
+    #generate a ID unique to the station from static attributes (stateless and persists on reboot)
     host_name = socket.gethostname()
     host_mac = hex(uuid.getnode())
     hashstr = host_name + host_mac
