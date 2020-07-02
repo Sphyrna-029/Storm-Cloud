@@ -1,9 +1,6 @@
 ### Usage
 
+☄️ This will compile a go binary and load it into a container ☄️
 ```
-go mod init github.com/BuckarewBanzai/storm-cloud
-
-go build
-
-./storm-cloud
+./build.sh
 ```
