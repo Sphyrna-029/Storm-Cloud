@@ -1,6 +1,6 @@
 from ina219 import INA219
 from RPi_AS3935 import RPi_AS3935
-from datetime import datetime
+from datetime import datetime, timezone
 import RPi.GPIO as GPIO
 import threading
 import requests
@@ -12,18 +12,25 @@ import hashlib
 import bme280
 import time
 
+##########
+# Config #
+##########
+
+endpoint = "http://192.168.1.185/events"
+port     = 8080
+
+
 dataPayload = {}
 
 
 def dateTime():
-    now = datetime.now()
-    dt = now.strftime("%d/%m/%Y %H:%M:%S")
+    local_time = datetime.now(timezone.utc).astimezone()
 
-    dataPayload.update( { 'datetime' : dt } )
+    dataPayload.update( { 'datetime' : local_time.isoformat() } )
 
 
 def IdGen():
-    #generate a ID unique to the station from static attributes (stateless and persists on reboot)
+    #generate a ID unique to the station from static attributes (stateless and persists on reboot barring ip change)
     host_name = socket.gethostname()
     host_mac = hex(uuid.getnode())
     hashstr = host_name + host_mac
@@ -142,8 +149,11 @@ while True:
     json_payload = json.dumps(dataPayload, indent = 4)
     print(json_payload)
 
-    r = requests.post('http://192.168.1.185:8080/events', data=json_payload)
-    print(r.status_code, r.reason)
+    try:
+        r = requests.post('http://192.168.1.132:8081/events', data=json_payload)
+        print(r.status_code, r.reason)
+    except:
+        pass
 
     dataPayload = {}
 
