@@ -1,21 +1,38 @@
 from ina219 import INA219
 from RPi_AS3935 import RPi_AS3935
+from datetime import datetime
 import RPi.GPIO as GPIO
 import threading
+import requests
 import smbus2
 import socket
 import uuid
+import json
 import hashlib
 import bme280
 import time
 
+dataPayload = {}
+
+
+def dateTime():
+    now = datetime.now()
+    dt = now.strftime("%d/%m/%Y %H:%M:%S")
+
+    dataPayload.update( { 'datetime' : dt } )
+
+
 def IdGen():
-    #generate a ID unique to the station from static attributes (stateless and persists on reboot)
+    #generate a ID unique to the station from static attributes (stateless and persists on reboot barring ip change)
     host_name = socket.gethostname()
     host_mac = hex(uuid.getnode())
     hashstr = host_name + host_mac
 
-    return hashlib.md5(hashstr.encode('utf-8')).hexdigest()
+    hash = hashlib.md5(hashstr.encode('utf-8')).hexdigest()
+
+    dataPayload.update( { 'stationid' : hash } )
+
+    return hash
 
 
 def multiSense():
@@ -34,8 +51,11 @@ def multiSense():
     print("Sensor: BME280")
     print("Address: 0x76")
     print(str(round(data.temperature)) + "C")
+    dataPayload.update( { 'temperature' : round(data.temperature, 2) } )
     print(str(round(data.pressure)) + "hPa")
+    dataPayload.update( { 'pressure' : round(data.pressure, 2) } )
     print(str(round(data.humidity)) + "%")
+    dataPayload.update( { 'humidity' : round(data.humidity, 2) } )
 
 def powerSense():
     SHUNT_OHMS = 0.1
@@ -47,10 +67,15 @@ def powerSense():
     print("Sensor: INA219")
     print("Address: 0x40")
     print("Bus Voltage    : %.3f V" % ina.voltage())
+    dataPayload.update( { 'busvoltage' : round(ina.voltage(), 2) } )
     print("Bus Current    : %.3f mA" % ina.current())
+    dataPayload.update( { 'buscurrent' : round(ina.current(), 2) } )
     print("Supply Voltage : %.3f V" % ina.supply_voltage())
+    dataPayload.update( { 'supplyvoltage' : round(ina.supply_voltage(), 2) } )
     print("Shunt voltage  : %.3f mV" % ina.shunt_voltage())
+    dataPayload.update( { 'shuntvoltage' : round(ina.shunt_voltage(), 2) } )
     print("Power          : %.3f mW" % ina.power())
+    dataPayload.update( { 'power' : round(ina.power(), 2) } )
 
 def strikeSense():
     GPIO.setmode(GPIO.BCM)
@@ -110,7 +135,16 @@ except:
 ###########
 while True:
     print("Station ID: " + IdGen())
+    dateTime()
     multiSense()
     powerSense()
+
+    json_payload = json.dumps(dataPayload, indent = 4)
+    print(json_payload)
+
+    r = requests.post('http://192.168.1.185:8080/events', data=json_payload)
+    print(r.status_code, r.reason)
+
+    dataPayload = {}
 
     time.sleep(300)
