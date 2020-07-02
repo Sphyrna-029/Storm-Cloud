@@ -13,7 +13,7 @@ start() {
             echo "Old container found, removing..."
             docker rm $name
         fi
-        docker run -d --restart=always -v /Storm-Cloud/API/weather.db:/storm/weather.db -p 8081:8081 --name $name storm-cloud-api
+        docker run -d --restart=always -v $PWD:/storm -p 8081:8081 --name $name storm-cloud-api
     fi
 }
 
