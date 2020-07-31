@@ -17,7 +17,7 @@ import time
 ##########
 
 endpoint = "http://192.168.1.185/events"
-port     = 8080
+port     = 8081
 
 
 dataPayload = {}
