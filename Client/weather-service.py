@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from ina219 import INA219
 from RPi_AS3935 import RPi_AS3935
 from datetime import datetime, timezone
@@ -16,18 +18,22 @@ import time
 # Config #
 ##########
 
-endpoint = "http://192.168.1.185/events"
+endpoint = "http://192.168.1.137/events"
 port     = 8081
 
 
 dataPayload = {}
-
+strikePayload = {}
 
 def dateTime():
     local_time = datetime.now(timezone.utc).astimezone()
 
     dataPayload.update( { 'datetime' : local_time.isoformat() } )
 
+def strikeTime():
+    local_time = datetime.now(timezone.utc).astimezone()
+
+    strikePayload.update( { 'datetime' : local_time.isoformat() } )
 
 def IdGen():
     #generate a ID unique to the station from static attributes (stateless and persists on reboot barring ip change)
@@ -115,6 +121,21 @@ def strikeSense():
             print("Lightning detected")
             print(str(distance) + "km away. (%s)" % now)
 
+            strikeTime()
+            strikePayload.update( { 'distance' : distance } )
+            strikePayload.update( { 'stationId' : IdGen() } )
+
+            json_s_payload = json.dumps(strikePayload, indent = 4)
+
+            try:
+                r = requests.post('http://192.168.1.137:8081/strike', data=json_s_payload)
+                print(r.status_code, r.reason)
+
+            except:
+                pass
+
+            strikePayload = {}
+
     pin = 17
 
     GPIO.setup(pin, GPIO.IN)
@@ -150,7 +171,7 @@ while True:
     print(json_payload)
 
     try:
-        r = requests.post('http://192.168.1.132:8081/events', data=json_payload)
+        r = requests.post('http://192.168.1.137:8081/events', data=json_payload)
         print(r.status_code, r.reason)
     except:
         pass
