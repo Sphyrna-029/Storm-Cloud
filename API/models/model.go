@@ -19,5 +19,5 @@ type Event struct {
 type Strike struct {
   StationID string `json:"stationid"`
   DateTime time.Time `json:"datetime"`
-  Distance `json:"distance"`
+  Distance float32 `json:"distance"`
 }
