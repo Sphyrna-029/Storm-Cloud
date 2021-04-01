@@ -14,6 +14,8 @@ func main() {
   r.GET("/events", controllers.FindEvents)
   r.GET("/events/:id", controllers.FindStation)
   r.POST("/events", controllers.CreateEvent)
+  r.GET("/strike", controllers.FindStrikes)
+  r.POST("/strike", controllers.CreateStrike)
 
-  r.Run()
+  r.Run(":8081")
 }
