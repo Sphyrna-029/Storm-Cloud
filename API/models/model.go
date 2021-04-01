@@ -15,3 +15,9 @@ type Event struct {
   ShuntVoltage   float32 `json:"shuntvoltage"`
   Power          float32 `json:"power"`
 }
+
+type Strike struct {
+  StationID string `json:"stationid"`
+  DateTime time.Time `json:"datetime"`
+  Distance `json:"distance"`
+}
