@@ -50,7 +50,7 @@ func FindStation(c *gin.Context) {
  c.JSON(http.StatusOK, gin.H{"data": events})
 }
 
-func FindStrikes(c, *gin.Context) {
+func FindStrikes(c *gin.Context) {
  var strikes []models.Strike
  if err := models.DB.Where("station_id = ?", c.Param("id")).Find(&strikes).Error; err != nil {
                 c.JSON(http.StatusBadRequest, gin.H{"error": "Station ID not found!"})
